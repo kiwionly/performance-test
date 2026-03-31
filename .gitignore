@@ -1,0 +1,14 @@
+
+# The data file
+out.csv
+
+# All object files in any directory
+*.o
+
+# All Java class files in any directory
+*.class
+
+# Optional: Ignore the final compiled binary
+# (Assuming your output is named 'read')
+read
+avx2_read
