@@ -1,6 +1,6 @@
-## Languages Performance Test
+## Programming Languages Performance Test
 
-Simple test  for languages performance.
+Simple test for programming languages performance.
 
 Test data : Weather station from [1brc](https://github.com/gunnarmorling/1brc)
 
@@ -9,17 +9,18 @@ Note that all code logic is a bit difference than 1brc challenges.
 The logic is simple, it loop through 4 millions records to listed out only min and max city and it temperature.
 
 ## Purpose 
-To test out how fast one cpu can be and how much memory use for each language.
-
-Hence, it is not using
+  - Maximun code readablility
+  - Maximum one CPU usage
+  - Minimun memory usage
+   
+Hence features below is not using :
  - mmap
  - multithread
  - goroutine
 
-## Goals
-  - Maximun code readablility
-  - Maximum CPU usage
-  - Minimun memory usage
+## Test platform
+ - Windows 11
+ - wsl2 ubuntu 22.04
 
 ## Setup
 
