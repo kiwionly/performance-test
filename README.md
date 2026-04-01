@@ -27,20 +27,25 @@ Hence features below is not using :
 Make sure you had install all the languages SDK as below:
 
  - Asm - NASM version 2.15.05
- - C - Ubuntu clang version 14.0.0-1ubuntu1.1
+ - C - clang version 14.0.0-1
  - Go - 1.26.0
- - Java - GraalVM CE 25.0.2+10.1 ( using `ubuntu snap` )
+ - Java - GraalVM CE 25.0.2+10.1 
  - Python - 3
  - Rust - 1.94.0 
  - Zig - 0.15.2
-   
+
+The following is required for Graalvm native image:
+ - GCC - 11.4.0
+ - cmake - 3.22.1
+ - glibc
+ - zlib
 
 First, make the 4 million records file ( out.csv ) with Java.
 
-Assume you already install Graalvm using ubuntu snap, open console:
+Assume you already install Graalvm and setup properly, open console:
 ```sh
 cd java
-graalvm-jdk.javac CopyTask.java && graalvm-jdk.java CopyTask
+javac CopyTask.java && java CopyTask
 ```
 
 You should see
