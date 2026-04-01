@@ -1,5 +1,5 @@
 
-// graalvm-jdk.javac CopyTask.java && /usr/bin/time -v graalvm-jdk.java CopyTask
+// javac CopyTask.java && /usr/bin/time -v java CopyTask
 
 import java.io.BufferedReader;
 import java.io.FileReader;

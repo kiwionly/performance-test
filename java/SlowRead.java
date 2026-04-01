@@ -1,5 +1,7 @@
 
-// graalvm-jdk.javac SlowRead.java && /usr/bin/time -v graalvm-jdk.java SlowRead
+// avac SlowRead.java && /usr/bin/time -v java SlowRead
+
+// native-image SlowRead && /usr/bin/time -v ./slowread
 
 import java.io.BufferedReader;
 import java.io.FileReader;

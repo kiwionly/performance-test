@@ -1,5 +1,7 @@
 
-// graalvm-jdk.javac Read.java && /usr/bin/time -v graalvm-jdk.java Read
+// javac Read.java && /usr/bin/time -v java Read
+
+// native-image Read && /usr/bin/time -v ./read
 
 import java.io.FileInputStream;
 import java.io.IOException;
