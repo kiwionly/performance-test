@@ -1,12 +1,17 @@
 // clang -O3 -march=native -msse4.2  read.c -o read.o  && /usr/bin/time -v ./read.o
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 #define BUF_SIZE 65536 
 
-static inline int fast_parse_int(char *p, char **next) {
+// Static allocation: This memory is reserved when the program starts.
+// No malloc/free overhead.
+static char buf[BUF_SIZE];
+static char min_city[128];
+static char max_city[128];
+
+static inline int fast_parse_int(char *p) {
     int val = 0, neg = 0;
     if (*p == '-') { neg = 1; p++; }
     while (*p >= '0' && *p <= '9') { val = val * 10 + (*p - '0'); p++; }
@@ -14,24 +19,19 @@ static inline int fast_parse_int(char *p, char **next) {
         p++;
         if (*p >= '0' && *p <= '9') { val = val * 10 + (*p - '0'); p++; }
     }
-    if (next) *next = p;
     return neg ? -val : val;
 }
 
 int main() {
-
     FILE *fp = fopen("../out.csv", "rb");
+    if (!fp) return 1;
 
-    if (!fp) 
-        return 1;
-
-    char *buf = malloc(BUF_SIZE);
     int final_min = 2147483647, final_max = -2147483647;
-    char min_city[128], max_city[128];
     int total_count = 0;
     size_t leftover = 0;
 
     while (1) {
+        // Read into the buffer starting after the leftover data
         size_t n = fread(buf + leftover, 1, BUF_SIZE - leftover, fp);
         if (n == 0 && leftover == 0) break;
         
@@ -41,12 +41,12 @@ int main() {
 
         while (ptr < end) {
             char *line_end = memchr(ptr, '\n', end - ptr);
-            if (!line_end) break; // Incomplete line, wait for next read
+            if (!line_end) break; 
 
             char *sep = memchr(ptr, ';', line_end - ptr);
             if (sep) {
                 int city_len = (int)(sep - ptr);
-                int val = fast_parse_int(sep + 1, NULL);
+                int val = fast_parse_int(sep + 1);
 
                 if (val < final_min) {
                     final_min = val;
@@ -64,13 +64,14 @@ int main() {
         }
 
         leftover = end - ptr;
-        memmove(buf, ptr, leftover);
+        if (leftover > 0) {
+            memmove(buf, ptr, leftover);
+        }
     }
 
     printf("Min: %.1f (%s)\nMax: %.1f (%s)\nRows: %d\n", 
-           (float)final_min/10.0, min_city, (float)final_max/10.0, max_city, total_count);
+            (float)final_min/10.0, min_city, (float)final_max/10.0, max_city, total_count);
 
-    free(buf);
     fclose(fp);
     return 0;
 }
