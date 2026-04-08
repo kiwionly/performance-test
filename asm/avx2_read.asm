@@ -55,8 +55,9 @@ read_block:
     mov rdx, BUF_SIZE
     syscall
 
-    test rax, rax
-    jg .process_start
+    ; If we actually read some bytes, go process them. Otherwise, we're either done or something went wrong.
+    test rax, rax       
+    jg .process_start   
     
     ; EOF reached: check if we have an unprocessed final line without a newline
     cmp r13, 0
@@ -75,14 +76,14 @@ process_main:
     cmp rdx, 32
     jl process_tail
 
-    vmovdqu ymm0, [buffer + r14]
-    vpcmpeqb ymm3, ymm0, ymm1   ; Check for \n
-    vpcmpeqb ymm4, ymm0, ymm2   ; Check for ;
-    vpor ymm5, ymm3, ymm4       
-    vpmovmskb eax, ymm5
+    vmovdqu ymm0, [buffer + r14]; Load 32 bytes from buffer into ymm0
+    vpcmpeqb ymm3, ymm0, ymm1   ; Compare every byte in ymm0 with \n (stored in ymm1)
+    vpcmpeqb ymm4, ymm0, ymm2   ; Compare every byte in ymm0 with ; (stored in ymm2)
+    vpor ymm5, ymm3, ymm4       ; Combine results: ymm5 has 0xFF where there's a ; OR \n
+    vpmovmskb eax, ymm5         ; Extract the high bit of each byte into eax
     
-    test eax, eax
-    jz .no_delimiter
+    test eax, eax               ; Is eax zero?
+    jz .no_delimiter            ; If zero, no delimiters were found in these 32 bytes
 
     ; --- PURE SIMD COPY BLOCK ---
     tzcnt ecx, eax              ; ecx = offset to the FIRST delimiter
@@ -91,7 +92,7 @@ process_main:
     vmovdqu [linebuf + r13], ymm0
     
     add r14, rcx                ; Move pointer strictly to the delimiter
-    add r13, rcx                
+    add r13, rcx                ; Move linebuf index to the delimiter
     
     mov al, [linebuf + r13]     ; Read the delimiter we landed on
     inc r14                     ; Step over delimiter
@@ -174,7 +175,11 @@ handle_line:
     sub r11, '0'
     cmp r11, 9                  ; Safely ignores \r or bad chars (unsigned cmp)
     ja .p_done
+    
     imul rax, 10
+    ;lea rax, [rax + rax*4]    ; rax = rax + (rax * 4)  --> rax = rax * 5
+    ;shl rax, 1                 ; rax = rax * 2          --> rax = rax * 10
+
     add rax, r11
     jmp .p_loop
 .p_done:
@@ -182,7 +187,7 @@ handle_line:
     jz .compare_min
     neg rax
 
-    ; --- FIXED MIN/MAX EVALUATION ---
+; --- FIXED MIN/MAX EVALUATION ---
 .compare_min:
     cmp rax, [min]
     jge .compare_max            ; If >= min, check max
