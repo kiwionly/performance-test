@@ -1,5 +1,5 @@
 
-// avac SlowRead.java && /usr/bin/time -v java SlowRead
+// javac SlowRead.java && /usr/bin/time -v java SlowRead
 
 // native-image SlowRead && /usr/bin/time -v ./slowread
 
@@ -24,6 +24,8 @@ public class SlowRead {
 
 			String line = null;
 			while ((line = buf.readLine()) != null) {
+
+				// using indexOf really save some memory
 				
 				int pos = line.indexOf(";");
 

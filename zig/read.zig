@@ -1,4 +1,3 @@
-
 // clear && zig build-exe read.zig -O ReleaseFast -mcpu=native && /usr/bin/time -v ./read
 
 const std = @import("std");
@@ -54,6 +53,7 @@ pub fn main() !void {
     var leftover: usize = 0;
 
     while (true) {
+        @setRuntimeSafety(false);
         const n = try file.read(buf[leftover..BUF_SIZE]);
         if (n == 0 and leftover == 0) break;
 

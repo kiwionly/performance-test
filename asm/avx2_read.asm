@@ -6,6 +6,10 @@ section .rodata
     newline_mask: times 32 db 10
     semi_mask:    times 32 db 59
 
+section .data
+    align 8
+    records_count dq 0 
+
 section .bss
     align 32
     BUF_SIZE equ 65536
@@ -23,6 +27,10 @@ section .bss
     
     temp_start_ptr resq 1
 
+    start_cycle resq 1
+    stop_cycle  resq 1
+    
+
 section .text
     global _start
 
@@ -32,6 +40,12 @@ _start:
     mov [min], rax
     mov rax, 0x8000000000000000
     mov [max], rax
+
+    cpuid
+    rdtsc
+    shl rdx, 32
+    or  rax, rdx
+    mov [start_cycle], rax
 
     ; Open file
     mov rax, 2
@@ -152,6 +166,8 @@ handle_line:
     mov rbx, r13
     sub rbx, [temp_start_ptr]   ; Length of the temperature string
 
+    inc qword[records_count]
+
     ; --- Parse Float ---
     xor rax, rax 
     xor rcx, rcx
@@ -218,6 +234,43 @@ handle_line:
 
 
 done:
+
+    rdtscp
+    shl rdx, 32
+    or  rax, rdx
+    mov [stop_cycle], rax
+
+    mov rax, [stop_cycle]
+    sub rax, [start_cycle]
+    xor rdx, rdx
+    div qword[records_count]
+
+
+; --- CONVERT RAX TO STRING ---
+    mov rcx, buffer + 19  ; Point to the end of the buffer
+    mov rbx, 10           ; Divisor
+
+.convert_loop:
+    xor rdx, rdx          ; Clear RDX for division
+    div rbx               ; RAX / 10. Remainder in RDX, Quotient in RAX
+    add dl, '0'           ; Convert remainder to ASCII ('0'-'9')
+    dec rcx               ; Move buffer pointer back
+    mov [rcx], dl         ; Store character
+    test rax, rax         ; Is quotient 0?
+    jnz .convert_loop     ; If not, keep dividing
+
+    ; --- PRINT THE RESULT ---
+    ; Calculate length: (buffer + 19) - current rcx
+    mov rdx, buffer + 19
+    sub rdx, rcx          ; RDX = length of string
+    
+    mov rsi, rcx          ; RSI = pointer to start of string
+    mov rdi, 1            ; stdout
+    mov rax, 1            ; sys_write
+    mov byte [rsi + rdx], 10
+    inc rdx
+    syscall
+
     ; Output MIN
     mov rax, 1
     mov rdi, 1

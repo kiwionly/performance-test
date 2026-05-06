@@ -1,5 +1,5 @@
 
-// RUSTFLAGS="-C target-cpu=native" && /usr/bin/time -v cargo run --release
+// RUSTFLAGS="-C target-cpu=native" && cargo build --release && /usr/bin/time -v ./target/release/rust_read
 
 use memchr::memchr;
 use std::fs::File;
