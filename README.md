@@ -57,3 +57,8 @@ cd <language_folder>
 <Run the command which comment at top of the source file>
 ```
 
+## Result 
+
+The result for the test is show in this [chart](https://kiwionly.github.io/web/chart.html).
+
+
