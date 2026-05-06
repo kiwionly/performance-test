@@ -53,12 +53,14 @@ You should see
 
 To run for particular language :
 ```
-cd <language_folder>
+cd <language_folder
 <Run the command which comment at top of the source file>
 ```
 
 ## Result 
 
 The result for the test is show in this [chart](https://kiwionly.github.io/web/chart.html).
+
+This [slide](https://docs.google.com/presentation/d/1FRcAfCYMBlSTSzyFYsSG0IE9IJdrKi6zAbTePRw1asI/edit?usp=sharing) provides a detailed breakdown of the work.
 
 
