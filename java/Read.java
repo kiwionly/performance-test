@@ -90,7 +90,6 @@ public class Read {
 			if (c >= '0' && c <= '9') {
 				val = val * 10 + (c - '0');
 			}
-			// Automatically skips '.' just like your other versions
 		}
 
 		return neg ? -val : val;
