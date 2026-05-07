@@ -1,4 +1,5 @@
 // GOMAXPROCS=1 GOAMD64=v3 go build -ldflags="-s -w" -o read . && /usr/bin/time -v ./read
+
 package main
 
 import (
@@ -169,15 +170,10 @@ func main() {
 		count++
 	}
 
-	if count > 0 {
-		e, cpu := StopTSC()
-		fmt.Printf("stop cpu : %d  Cycles: %d\n", cpu, (e-s)/uint64(count))
-		fmt.Printf("Min: %.4f (City: %s)\n", float64(minVal)/10000.0, minCity)
-		fmt.Printf("Max: %.4f (City: %s)\n", float64(maxVal)/10000.0, maxCity)
-		fmt.Printf("Total Count: %d\n", count)
-		fmt.Printf("Time use: %dms\n", time.Since(start).Milliseconds())
-
-	} else {
-		fmt.Println("No data found.")
-	}
+	e, cpu := StopTSC()
+	fmt.Printf("stop cpu : %d  Cycles: %d\n", cpu, (e-s)/uint64(count))
+	fmt.Printf("Min: %.4f (City: %s)\n", float64(minVal)/10000.0, minCity)
+	fmt.Printf("Max: %.4f (City: %s)\n", float64(maxVal)/10000.0, maxCity)
+	fmt.Printf("Total Count: %d\n", count)
+	fmt.Printf("Time use: %dms\n", time.Since(start).Milliseconds())
 }
