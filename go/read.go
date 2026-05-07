@@ -1,5 +1,3 @@
-// GOAMD64=v3 go build -ldflags="-s -w" -o read read.go && /usr/bin/time -v ./read
-
 // GOMAXPROCS=1 GOAMD64=v3 go build -ldflags="-s -w" -o read . && /usr/bin/time -v ./read
 package main
 
