@@ -75,23 +75,31 @@ public class Read {
 	}
 
 	public static int fastParseInt(byte[] b, int start, int end) {
-		
-		int val = 0;
-		boolean neg = false;
+				
+		int signed = 1;
 		int i = start;
 
 		if (b[i] == '-') {
-			neg = true;
+			signed = -1;
 			i++;
 		}
+		
+		int dotPos = -1;
 
+		int val = 0;
 		for (; i < end; i++) {
 			byte c = b[i];
 			if (c >= '0' && c <= '9') {
 				val = val * 10 + (c - '0');
+			} else {
+				dotPos = i - start;
 			}
 		}
 
-		return neg ? -val : val;
+		if ((signed == 1 && dotPos == 2) || (signed == -1 && dotPos == 3)) {
+			val *= 10;
+		}
+		
+		return signed * val;
 	}
 }

@@ -64,28 +64,34 @@ public class SlowRead {
 		}
 
 	}
-	
+
 	public static int fastParseInt(String s) {
 		
-	    int res = 0;
-	    
-	    int pos = 0;
-	    
-	    boolean neg = false;
-        if (s.startsWith("-")) {
-            neg = true;
-            pos++;
-        }
-        
-	    for (int i = pos; i < s.length(); i++) {
-	        // Subtracting '0' gets the numeric value of the ASCII character
-	        res = res * 10 + (s.charAt(i) - '0');
-	    }
-	    
-	    if(neg) {
-	    	return -res;
-	    }    
-	    
-	    return res;
-	}
+		int signed = 1;
+		int i = 0;
+
+		if (s.charAt(i) == '-') {
+			signed = -1;
+			i++;
+		}
+
+		int dotPos = 0;
+		
+		int val = 0;
+		for (; i < s.length(); i++) {
+			char c = s.charAt(i);
+			if (c >= '0' && c <= '9') {
+				val = val * 10 + (c - '0');
+			} else {
+				dotPos = i;
+			}
+		}
+	
+		if ((signed == 1 && dotPos == 2) || (signed == -1 && dotPos == 3)) {
+			val *= 10;
+		}
+
+		return signed * val;
+	}	
+	
 }

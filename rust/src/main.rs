@@ -9,20 +9,34 @@ const BUF_SIZE: usize = 65536; // 64KB
 
 #[inline(always)]
 fn fast_parse_int(b: &[u8]) -> i32 {
-    let mut val = 0;
-    let mut neg = false;
+    let mut sign = 1;
     let mut i = 0;
-    if b.is_empty() { return 0; }
+
     if b[0] == b'-' {
-        neg = true;
+        sign = -1;
+        i = 1;
+    }
+
+    let mut dot_pos = 0usize;
+    let mut val = 0i32;
+
+    while i < b.len() {
+        let c = b[i];
+
+        if c >= b'0' && c <= b'9' {
+            val = val * 10 + (c - b'0') as i32;
+        } else {
+            dot_pos = i;
+        }
+
         i += 1;
     }
-    for &byte in &b[i..] {
-        if byte >= b'0' && byte <= b'9' {
-            val = val * 10 + (byte - b'0') as i32;
-        }
+
+    if (sign == 1 && dot_pos == 2) || (sign == -1 && dot_pos == 3) {
+        val *= 10;
     }
-    if neg { -val } else { val }
+
+    sign * val
 }
 
 fn main() -> io::Result<()> {
@@ -85,8 +99,8 @@ fn main() -> io::Result<()> {
     }
 
     if count > 0 {
-        println!("Min: {:.1} ({})", min_val as f64 / 10.0, min_city);
-        println!("Max: {:.1} ({})", max_val as f64 / 10.0, max_city);
+        println!("Min: {:.1} ({})", min_val as f64 / 100.0, min_city);
+        println!("Max: {:.1} ({})", max_val as f64 / 100.0, max_city);
         println!("Rows: {}", count);
     }
 

@@ -1,33 +1,47 @@
 ;
 ; clear && nasm -f elf64 -o read.o ./read.asm  &&  ld -o read -s -n -z max-page-size=0x1000 read.o && /usr/bin/time -v ./read
 ;
-%macro parse_float_to_int 0
-    xor rax, rax 
-    xor rcx, rcx
-    xor r10, r10
-    movzx r11, byte [rsi]
-    cmp r11, '-'
-    jne .loop
+%macro parse_string_to_int 0
+    xor rax, rax        ; result
+    xor rcx, rcx        ; index
+    xor r10, r10        ; negative flag: 0 = positive, 1 = negative
+    mov r8, -1          ; dotPos, -1 means no dot found
+    cmp byte [rsi], '-'
+    jne %%loop
     mov r10, 1
-    inc rcx           ; Move past '-'
-.loop:
+    inc rcx             ; skip '-'
+%%loop:
     cmp rcx, rbx
-    je .done
+    jae %%done
     movzx r11, byte [rsi + rcx]
-    inc rcx
-    cmp r11, '.'
-    je .loop          ; Just skip the dot
+    cmp r11b, '.'
+    je %%dot
     sub r11, '0'
-    cmp r11, 9        ; Safety check: is it a digit?
-    ja .done
-    imul rax, 10      ; More readable than lea/shl for debugging
+    cmp r11, 9
+    ja %%done           ; non-digit, stop
+    imul rax, rax, 10
     add rax, r11
-    jmp .loop
-.done:
+    inc rcx
+    jmp %%loop
+%%dot:
+    mov r8, rcx         ; store real dot position, zero-based
+    inc rcx             ; skip '.'
+    jmp %%loop
+%%done:
+    ; Need multiply by 10 for:
+    ; positive "12.3"  -> dotPos = 2
+    ; negative "-12.3" -> dotPos = 3
+    ;
+    ; expectedDotPos = 2 + negativeFlag
+    lea r11, [r10 + 2]
+    cmp r8, r11
+    jne %%apply_sign
+    imul rax, rax, 10
+%%apply_sign:
     test r10, r10
-    jz .finish
+    jz %%finish
     neg rax
-.finish:
+%%finish:
 %endmacro
 
 section .data
@@ -121,7 +135,7 @@ handle_newline:
     mov rbx, r13
     sub rbx, [temp_start_ptr]
 
-    parse_float_to_int
+    parse_string_to_int
     inc qword[records_count]
     
     ; Compare and Update

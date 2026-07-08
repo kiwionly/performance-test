@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func BenchmarkParsewithMagic(b *testing.B) {
+func BenchmarkParsewithSWAR(b *testing.B) {
 
 	buf := make([]byte, 8)
 
@@ -14,20 +14,20 @@ func BenchmarkParsewithMagic(b *testing.B) {
 	tempStr := "-12.3"
 	copy(buf, tempStr)
 
-	println(parseWithMagic(buf, 3))
+	println(parseWithSWAR(buf, 3))
 	b.ResetTimer()
 
 	for b.Loop() {
-		parseWithMagic(buf, 3)
+		parseWithSWAR(buf, 3)
 	}
 }
 
 func BenchmarkParseIntLoopUnrolling(b *testing.B) {
 
-	buf := make([]byte, 8)
+	buf := make([]byte, 5)
 
 	// Copy your temperature string into it
-	tempStr := "-12.3456"
+	tempStr := "-12.3"
 	copy(buf, tempStr)
 
 	b.ResetTimer()
@@ -39,10 +39,10 @@ func BenchmarkParseIntLoopUnrolling(b *testing.B) {
 
 func BenchmarkParseInt(b *testing.B) {
 
-	buf := make([]byte, 8)
+	buf := make([]byte, 5)
 
 	// Copy your temperature string into it
-	tempStr := "-12.3456"
+	tempStr := "-12.3"
 	copy(buf, tempStr)
 
 	b.ResetTimer()

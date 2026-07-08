@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-func parseWithMagic(b []byte, dotPos int) int {
+func parseWithSWAR(b []byte, dotPos int) int {
 	word := binary.LittleEndian.Uint64(b)
 
 	// 1. Handle Sign
@@ -37,76 +37,69 @@ func parseWithMagic(b []byte, dotPos int) int {
 // fastParseInt treats "23.4" as 234 (integer)
 // manually loop unrolling to make it faster 1 second, this is cheat on finite set of data
 func fastParseIntLoopUnrolling(b []byte) int {
-
 	switch len(b) {
 
-	case 8: // -12.3456
-
-		val :=
-			int(b[1]-'0')*100000 +
-				int(b[2]-'0')*10000 +
-				int(b[4]-'0')*1000 +
-				int(b[5]-'0')*100 +
-				int(b[6]-'0')*10 +
-				int(b[7]-'0')
-		return -val
-
-	case 7:
-
-		if b[0] == '-' { // -2.3456
-			return -(int(b[1]-'0')*10000 +
-				int(b[3]-'0')*1000 +
-				int(b[4]-'0')*100 +
-				int(b[5]-'0')*10 +
-				int(b[6]-'0'))
+	case 4: // 1.23 or 12.3
+		if b[1] == '.' { // 1.23 => 123
+			return int(b[0]-'0')*100 +
+				int(b[2]-'0')*10 +
+				int(b[3]-'0')
 		}
-		// 12.3456
-		return int(b[0]-'0')*100000 +
-			int(b[1]-'0')*10000 +
-			int(b[3]-'0')*1000 +
-			int(b[4]-'0')*100 +
-			int(b[5]-'0')*10 +
-			int(b[6]-'0')
-
-	case 6: // 2.3456
-		return int(b[0]-'0')*10000 +
-			int(b[2]-'0')*1000 +
-			int(b[3]-'0')*100 +
-			int(b[4]-'0')*10 +
-			int(b[5]-'0')
-
-	case 5: // 12.34
+		// 12.3 -> 1230
 		return int(b[0]-'0')*1000 +
 			int(b[1]-'0')*100 +
-			int(b[3]-'0')*10 +
-			int(b[4]-'0')
+			int(b[3]-'0')*10
 
-	default: // 12.3
-		return int(b[0]-'0')*100 +
-			int(b[1]-'0')*10 +
-			int(b[3]-'0')
+	case 5: // -1.23 or -12.3
+
+		if b[3] == '.' { // -12.3 -> -12.30
+			return -(int(b[1]-'0')*1000 +
+				int(b[2]-'0')*100 +
+				int(b[4]-'0')*10)
+		}
+		// -1.23
+		return -(int(b[1]-'0')*100 +
+			int(b[3]-'0')*10 +
+			int(b[4]-'0'))
 	}
+
+	return 0
 }
 
 // fastParseInt treats "23.4" as 234 (integer)
 func fastParseInt(b []byte) int {
 
-	val := 0
-	neg := 1
+	signed := 1
 	i := 0
 
 	if b[0] == '-' {
-		neg = -1
+		signed = -1
 		i++
 	}
 
+	val := 0
+	frac := 0
+	afterDot := false
+
 	for ; i < len(b); i++ {
-		if b[i] != '.' {
-			val = val*10 + int(b[i]-'0')
+		c := b[i]
+		if c == '.' {
+			afterDot = true
+			continue
+		}
+
+		val = val*10 + int(c-'0')
+
+		if afterDot {
+			frac++
 		}
 	}
 
-	return neg * val
+	if frac == 1 {
+		val *= 10
+	}
+
+	return signed * val
 }
 
 func StartTSC() (tsc uint64, cpu uint32)
@@ -116,7 +109,11 @@ func StopTSC() (tsc uint64, cpu uint32)
 func main() {
 
 	f, _ := os.Create("cpu.prof")
-	pprof.StartCPUProfile(f)
+	error := pprof.StartCPUProfile(f)
+
+	if error != nil {
+		panic(error)
+	}
 	defer pprof.StopCPUProfile()
 
 	start := time.Now()
@@ -172,8 +169,8 @@ func main() {
 
 	e, cpu := StopTSC()
 	fmt.Printf("stop cpu : %d  Cycles: %d\n", cpu, (e-s)/uint64(count))
-	fmt.Printf("Min: %.4f (City: %s)\n", float64(minVal)/10000.0, minCity)
-	fmt.Printf("Max: %.4f (City: %s)\n", float64(maxVal)/10000.0, maxCity)
+	fmt.Printf("Min: %.1f (City: %s)\n", float64(minVal)/100.0, minCity)
+	fmt.Printf("Max: %.1f (City: %s)\n", float64(maxVal)/100.0, maxCity)
 	fmt.Printf("Total Count: %d\n", count)
 	fmt.Printf("Time use: %dms\n", time.Since(start).Milliseconds())
 }

@@ -168,37 +168,43 @@ handle_line:
 
     inc qword[records_count]
 
-    ; --- Parse Float ---
-    xor rax, rax 
-    xor rcx, rcx
-    xor r10, r10
-    
-    cmp rbx, 0
-    jle .h_done
-
-    movzx r11, byte [rsi]
-    cmp r11, '-'
-    jne .p_loop
-    inc r10
-    inc rcx
-.p_loop:
+; --- parse string to int ---
+    xor rax, rax        ; result
+    xor rcx, rcx        ; index
+    xor r10, r10        ; negative flag: 0 = positive, 1 = negative
+    mov r8, -1          ; dotPos, -1 means no dot found
+    cmp byte [rsi], '-'
+    jne loop
+    mov r10, 1
+    inc rcx             ; skip '-'
+loop:
     cmp rcx, rbx
-    jge .p_done
+    jae .parse_done
     movzx r11, byte [rsi + rcx]
-    inc rcx
-    cmp r11, '.'
-    je .p_loop
+    cmp r11b, '.'
+    je .dot
     sub r11, '0'
-    cmp r11, 9                  ; Safely ignores \r or bad chars (unsigned cmp)
-    ja .p_done
-    
-    imul rax, 10
-    ;lea rax, [rax + rax*4]    ; rax = rax + (rax * 4)  --> rax = rax * 5
-    ;shl rax, 1                 ; rax = rax * 2          --> rax = rax * 10
-
+    cmp r11, 9
+    ja .parse_done           ; non-digit, stop
+    imul rax, rax, 10
     add rax, r11
-    jmp .p_loop
-.p_done:
+    inc rcx
+    jmp loop
+.dot:
+    mov r8, rcx         ; store real dot position, zero-based
+    inc rcx             ; skip '.'
+    jmp loop
+.parse_done:
+    ; Need multiply by 10 for:
+    ; positive "12.3"  -> dotPos = 2
+    ; negative "-12.3" -> dotPos = 3
+    ;
+    ; expectedDotPos = 2 + negativeFlag
+    lea r11, [r10 + 2]
+    cmp r8, r11
+    jne .apply_sign
+    imul rax, rax, 10
+.apply_sign:
     test r10, r10
     jz .compare_min
     neg rax

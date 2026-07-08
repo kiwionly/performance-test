@@ -4,25 +4,32 @@
 import time
 import os
 
-def fast_parse_int(s):
-    """Manual implementation of Java's fastParseInt for logic parity."""
-    res = 0
-    pos = 0
-    neg = False
-    
-    s = s.strip() # Remove any trailing whitespace/newlines
-    if not s:
-        return 0
-        
-    if s.startswith("-"):
-        neg = True
-        pos = 1
-        
-    for i in range(pos, len(s)):
-        # ord() gets the ASCII value; equivalent to (s.charAt(i) - '0')
-        res = res * 10 + (ord(s[i]) - ord('0'))
-        
-    return -res if neg else res
+def fast_parse_int(s: str) -> int:
+    signed = 1
+    i = 0
+
+    if s[0] == '-':
+        signed = -1
+        i = 1
+
+    dot_pos = 0
+    val = 0
+
+    while i < len(s):
+        c = s[i]
+
+        if '0' <= c <= '9':
+            val = val * 10 + (ord(c) - ord('0'))
+        else:
+            dot_pos = i
+
+        i += 1
+
+    if (signed == 1 and dot_pos == 2) or \
+       (signed == -1 and dot_pos == 3):
+        val *= 10
+
+    return signed * val
 
 def main():
     start_time = time.time()  # Seconds since epoch

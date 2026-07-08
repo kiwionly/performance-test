@@ -49,7 +49,7 @@ javac CopyTask.java && java CopyTask
 ```
 
 You should see
-`rows count = 4469300`
+`rows count = 4469100`
 
 To run for particular language :
 ```
