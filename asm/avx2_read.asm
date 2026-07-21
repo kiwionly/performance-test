@@ -1,4 +1,4 @@
-; clear && nasm -f elf64 -o avx2_read.o ./avx2_read.asm && ld -o avx2_read -s -n -z max-page-size=0x1000 avx2_read.o && /usr/bin/time -v ./avx2_read
+; nasm -f elf64 -o avx2_read.o ./avx2_read.asm && ld -o avx2_read -s -n -z max-page-size=0x1000 avx2_read.o && /usr/bin/time -v ./avx2_read
 
 section .rodata
     file db "../out.csv", 0
@@ -11,8 +11,8 @@ section .data
     records_count dq 0 
 
 section .bss
-    align 32
-    BUF_SIZE equ 65536
+    align 64
+    BUF_SIZE equ 65536 
     buffer   resb BUF_SIZE
     fd       resq 1
 
