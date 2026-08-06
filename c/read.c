@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define BUF_SIZE 65536 / 2
+#define BUF_SIZE 65536
 
 // Static allocation: This memory is reserved when the program starts.
 // No malloc/free overhead.
