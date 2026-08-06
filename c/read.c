@@ -1,4 +1,4 @@
-// clang -O3 -march=native -msse4.2  read.c -o read.o  && /usr/bin/time -v ./read.o
+// clang -O3 -march=native -msse4.2  read.c -o read  && /usr/bin/time -v ./read
 
 #include <stdio.h>
 #include <string.h>
