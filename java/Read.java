@@ -30,30 +30,34 @@ public class Read {
 
 				int totalAvailable = byteRead + leftover;
 				int pos = 0;
-				
+
+				int semi = -1;
+
 				for(int i = pos; i < totalAvailable; i++) {
 
-					if('\n' == buffer[i]) {
+					byte val = buffer[i];
 
-						for (int j = i - 1; j >= pos; j--) {
+					if(val == ';') {
+						semi = i;
+					} else if(val == '\n') {
 
-							if(';' == buffer[j]) {
-								count++;
-								int temp = fastParseInt(buffer, j + 1, i);
+						if(semi >= pos) {
 
-								if (temp > max) {
-									max = temp;
-									maxCity = Arrays.copyOfRange(buffer, pos, i);
-								} else if (temp < min) {
-									min = temp;
-									minCity = Arrays.copyOfRange(buffer, pos, i);
-								}
-								
-								break;
-							}
+							int temp = fastParseInt(buffer, semi + 1, i);
+
+							count++;
+
+							if (temp > max) {
+								max = temp;
+								maxCity = Arrays.copyOfRange(buffer, pos, i);
+							} else if (temp < min) {
+								min = temp;
+								minCity = Arrays.copyOfRange(buffer, pos, i);
+							}													
 						}
 
 						pos = i + 1; // next index after \n
+						semi = -1;	
 					}
 				}
 
@@ -65,7 +69,6 @@ public class Read {
 			        leftover = 0;
 			    }
 			}
-
 
 			long end = System.currentTimeMillis() - start;
 
