@@ -6,12 +6,8 @@
 #define BUF_SIZE 65536
 
 // Static allocation: This memory is reserved when the program starts.
-// No malloc/free overhead.
-static char buf[BUF_SIZE];
-static char min_city[128];
-static char max_city[128];
 
-static inline int fast_parse_int(char *p) {
+int fast_parse_int(char *p) {
     int val = 0, neg = 0;
     if (*p == '-') { neg = 1; p++; }
     while (*p >= '0' && *p <= '9') { val = val * 10 + (*p - '0'); p++; }
@@ -23,6 +19,11 @@ static inline int fast_parse_int(char *p) {
 }
 
 int main() {
+
+    char buf[BUF_SIZE];
+    char min_city[128];
+    char max_city[128];
+
     FILE *fp = fopen("../out.csv", "rb");
     if (!fp) return 1;
 

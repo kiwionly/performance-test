@@ -43,7 +43,7 @@ public class Read {
 
 						if(semi >= pos) {
 
-							int temp = fastParseInt(buffer, semi + 1, i);
+							int temp = loopUnrollingParseInt(buffer, semi + 1, i);
 
 							count++;
 
@@ -105,4 +105,113 @@ public class Read {
 		
 		return signed * val;
 	}
+
+	public static int loopUnrollingParseInt(byte[] b, int start, int end) {
+		
+		int size = end - start;
+		
+		int val = 0;		
+		
+		switch(size) {
+				
+			case 5 :  // -1.23 or -12.3 or 12.34 
+				
+				int d0 = b[start + 0];
+				
+				if(d0 == '-') {
+					
+					int d2 = b[start + 2];
+					
+					if(d2 == '.') {
+						int d1 = b[start + 1];
+						val = val + 100 * (d1 - '0');
+						
+						int d3 = b[start + 3];					
+						val = val + 10 * (d3 - '0');
+						
+						int d4 = b[start + 4];
+						val = val + 1 * (d4 - '0');
+						
+						return -val;
+						
+					} else {
+						
+						int d1 = b[start + 1];
+						val = val + 1000 * (d1 - '0');					
+								
+						val = val + 100 * (d2 - '0');
+												
+						int d4 = b[start + 4];	
+						val = val + 10 * (d4 - '0');
+						
+						return -val;						
+					}				
+					
+				} 
+				else {
+					
+					val = val + 1000 * (d0 - '0');
+					
+					int d1 = b[start + 1];
+					val = val + 100 * (d1 - '0');
+										
+					int d3 = b[start + 3];
+					val = val + 10 * (d3 - '0');
+					
+					int d4 = b[start + 4];	
+					val = val + 1 * (d4 - '0');					
+						
+					return val;					
+				}				
+				
+			case 4 : // 1.23 or 12.3
+				
+				int d1 = b[start + 1];
+				
+				if(d1 == '.') {
+																	
+					int d00 = b[start + 0];
+					val = val + 100 * (d00 - '0');
+										
+					int d2 = b[start + 2];		
+					val = val + 10 * (d2 - '0');
+					
+					int d3 = b[start + 3];
+					val = val + 1 * (d3 - '0');
+					
+					return val;
+					
+				} else {
+					
+					int d00 = b[start + 0];
+					val = val + 1000 * (d00 - '0');
+												
+					val = val + 100 * (d1 - '0');
+					
+					int d3 = b[start + 3];
+					val = val + 10 * (d3 - '0');
+					
+					return val;					
+				}
+						
+				
+			default: // -12.34 
+				
+				int d11 = b[start + 1];
+				val = val + 1000 * (d11 - '0');
+				
+				int d22 = b[start + 2];			
+				val = val + 100 * (d22 - '0');
+												
+				int d4 = b[start + 4];	
+				val = val + 10 * (d4 - '0');
+				
+				int d5 = b[start + 5];
+				val = val + 1 * (d5 - '0');
+				
+				return -val;	
+		}
+				
+	}
+	
 }
