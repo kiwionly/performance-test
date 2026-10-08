@@ -9,15 +9,17 @@ import java.util.Arrays;
 
 public class Read {
 
+	private final static int SIZE = 65536;
+
 	public static void main(String[] args) throws IOException {
 
 		long start = System.currentTimeMillis();
 
 		try (FileInputStream in = new FileInputStream("../out.csv")) {
 
-			byte[] buffer = new byte[65536 + 1024];
-			int leftover = 0;
-			int byteRead;
+			byte[] buffer = new byte[SIZE + 64];
+			int offset = 0;
+			int n;
 		
 			int max = 0;
 			int min = 0;
@@ -26,47 +28,46 @@ public class Read {
 			byte[] minCity = null;
 
 
-			while ((byteRead = in.read(buffer, leftover, 65536)) != -1) {
+			while ((n = in.read(buffer, offset, SIZE)) != -1) {
 
-				int totalAvailable = byteRead + leftover;
-				int pos = 0;
+				int bufSize = n + offset;
+				int currentPosition = 0;
 
 				int semi = -1;
 
-				for(int i = pos; i < totalAvailable; i++) {
+				for(int i = currentPosition; i < bufSize; i++) {
 
 					byte val = buffer[i];
 
 					if(val == ';') {
 						semi = i;
-					} else if(val == '\n') {
+					} 
+					
+					if(val == '\n') {
 
-						if(semi >= pos) {
+						int temp = loopUnrollingParseInt(buffer, semi + 1, i);
 
-							int temp = loopUnrollingParseInt(buffer, semi + 1, i);
+						count++;
 
-							count++;
-
-							if (temp > max) {
-								max = temp;
-								maxCity = Arrays.copyOfRange(buffer, pos, i);
-							} else if (temp < min) {
-								min = temp;
-								minCity = Arrays.copyOfRange(buffer, pos, i);
-							}													
-						}
-
-						pos = i + 1; // next index after \n
-						semi = -1;	
+						if (temp > max) {
+							max = temp;
+							maxCity = Arrays.copyOfRange(buffer, currentPosition, i);
+						} else if (temp < min) {
+							min = temp;
+							minCity = Arrays.copyOfRange(buffer, currentPosition, i);
+						}													
+						
+						currentPosition = i + 1; // next index after \n
+						semi = -1;	 // reset semi
 					}
 				}
 
-				leftover = totalAvailable - pos;
+				offset = bufSize - currentPosition;
 				
-				if(leftover > 0) {
-					System.arraycopy(buffer, pos, buffer, 0, leftover);
+				if(offset > 0) {
+					System.arraycopy(buffer, currentPosition, buffer, 0, offset);
 				} else {
-			        leftover = 0;
+			        offset = 0;
 			    }
 			}
 
@@ -87,7 +88,7 @@ public class Read {
 			i++;
 		}
 		
-		int dotPos = -1;
+		int dotcurrentPosition = -1;
 
 		int val = 0;
 		for (; i < end; i++) {
@@ -95,11 +96,11 @@ public class Read {
 			if (c >= '0' && c <= '9') {
 				val = val * 10 + (c - '0');
 			} else {
-				dotPos = i - start;
+				dotcurrentPosition = i - start;
 			}
 		}
 
-		if ((signed == 1 && dotPos == 2) || (signed == -1 && dotPos == 3)) {
+		if ((signed == 1 && dotcurrentPosition == 2) || (signed == -1 && dotcurrentPosition == 3)) {
 			val *= 10;
 		}
 		
