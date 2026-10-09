@@ -66,9 +66,7 @@ public class Read {
 				
 				if(offset > 0) {
 					System.arraycopy(buffer, currentPosition, buffer, 0, offset);
-				} else {
-			        offset = 0;
-			    }
+				}
 			}
 
 			long end = System.currentTimeMillis() - start;
