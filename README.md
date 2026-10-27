@@ -27,12 +27,12 @@ Hence features below is not using :
 Make sure you had install all the languages SDK as below:
 
  - Asm - NASM version 2.15.05
- - C - clang version 14.0.0-1
+ - C - clang version 21.1.8
  - Go - 1.26.0
- - Java - GraalVM CE 25.0.2+10.1 
+ - Java - GraalVM CE 25.4.4.1.1+1.1
  - Python - 3
  - Rust - 1.94.0 
- - Zig - 0.15.2
+ - Zig - 0.17.0
 
 The following is required for Graalvm native image:
  - GCC - 11.4.0
