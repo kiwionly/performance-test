@@ -1,4 +1,4 @@
-; nasm -f elf64 -o read.o ./read.asm  &&  ld -o read -s -n -z max-page-size=0x1000 read.o && /usr/bin/time -v ./read
+; nasm -f elf64 -o read.o ./read.asm  &&  ld -o read -s -z max-page-size=0x1000 read.o && /usr/bin/time -v ./read
 
 %macro parse_string_to_int 0
     xor rax, rax        ; result
@@ -73,6 +73,10 @@ section .text
     global _start
 
 _start:
+
+    bits 64
+    default abs
+
     mov rax, [initial_min]
     mov [min], rax
     mov rax, [initial_max]
