@@ -20,25 +20,25 @@ Hence features below is not using :
 
 ## Test platform
  - Windows 11
- - wsl2 ubuntu 22.04
+ - 6.18.33.2-microsoft-standard-WSL2 Ubuntu 26.04.1 LTS
 
 ## Setup
 
 Make sure you had install all the languages SDK as below:
 
- - Asm - NASM version 2.15.05
- - C - clang version 14.0.0-1
- - Go - 1.26.0
- - Java - GraalVM CE 25.0.2+10.1 
- - Python - 3
+ - Asm - NASM version 3.01
+ - C - clang version 21.1.8
+ - Go - 1.27.3
+ - Java - GraalVM CE 25.4.4.1.1+1.1
+ - Python - 3.14.4
  - Rust - 1.94.0 
- - Zig - 0.15.2
+ - Zig - 0.17.0
 
 The following is required for Graalvm native image:
- - GCC - 11.4.0
+ - GCC - 15.2.0
  - cmake - 3.22.1
- - glibc
- - zlib
+ - glibc 2.43.0
+ - zlib 1:1.3
 
 First, make the 4 million records file ( out.csv ) with Java.
 
