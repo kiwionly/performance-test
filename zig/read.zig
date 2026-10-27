@@ -34,9 +34,15 @@ inline fn fastParseInt(p: [*]const u8, next: ?*[*]const u8) i32 {
     return if (neg) -val else val;
 }
 
-pub fn main() !void {
-    var file = try std.fs.cwd().openFile("../out.csv", .{ .mode = .read_only });
-    defer file.close();
+pub fn main(init: std.process.Init) !void {
+    const io = init.io;
+
+    const file = try std.Io.Dir.cwd().openFile(
+        io,
+        "../out.csv",
+        .{ .mode = .read_only },
+    );
+    defer file.close(io);
 
     const allocator = std.heap.page_allocator;
 
@@ -53,11 +59,30 @@ pub fn main() !void {
     var leftover: usize = 0;
 
     while (true) {
-        @setRuntimeSafety(false);
-        const n = try file.read(buf[leftover..BUF_SIZE]);
-        if (n == 0 and leftover == 0) break;
+        var eof = false;
 
-        const total = n + leftover;
+        const n = file.readStreaming(
+            io,
+            &.{buf[leftover..BUF_SIZE]},
+        ) catch |err| switch (err) {
+            error.EndOfStream => blk: {
+                eof = true;
+                break :blk @as(usize, 0);
+            },
+            else => return err,
+        };
+
+        if (!eof and n == 0) continue;
+
+        var total = n + leftover;
+
+        if (eof) {
+            if (total == 0)
+                break;
+
+            buf[total] = '\n';
+            total += 1;
+        }
 
         var ptr: usize = 0;
 

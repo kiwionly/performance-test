@@ -1,4 +1,4 @@
-; nasm -f elf64 -o avx2_read.o ./avx2_read.asm && ld -o avx2_read -s -n -z max-page-size=0x1000 avx2_read.o && /usr/bin/time -v ./avx2_read
+; nasm -f elf64 -o avx2_read.o ./avx2_read.asm && ld -o avx2_read -s -z max-page-size=0x1000 avx2_read.o && /usr/bin/time -v ./avx2_read
 
 section .rodata
     file db "../out.csv", 0
@@ -35,6 +35,10 @@ section .text
     global _start
 
 _start:
+
+    bits 64
+    default abs
+
     ; Initialize min to Max Int, max to Min Int
     mov rax, 0x7FFFFFFFFFFFFFFF
     mov [min], rax
